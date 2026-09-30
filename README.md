@@ -1,3 +1,15 @@
+# Менеджер задач
+
+Проекты, задачи и комментарии с ролями администратора, менеджера и исполнителя.
+Текущий composer.lock требует PHP **8.4.1+**; Composer 2 и SQLite.
+
+- [Запуск на Linux и диагностика ошибки 500](docs/linux-startup.md)
+- [Модуль «Проекты»: файлы, работа и объяснение для защиты](docs/projects-module.md)
+- [Автоматические проверки на Linux](https://github.com/amr1ds/task-manager/actions)
+
+Для новой копии обязательны установка зависимостей, создание .env, генерация APP_KEY и миграции базы. Подробные команды — в инструкции выше.
+
+---
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
