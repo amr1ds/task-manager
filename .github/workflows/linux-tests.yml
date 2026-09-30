@@ -1,0 +1,48 @@
+name: Linux application checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, fileinfo, pdo_sqlite, sqlite3
+          tools: composer:v2
+          coverage: none
+      - name: Install locked dependencies and prepare SQLite
+        run: |
+          cp .env.example .env
+          mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+          touch database/database.sqlite
+          composer install --no-interaction --prefer-dist --no-progress
+          composer check-platform-reqs
+          php artisan key:generate
+          php artisan migrate --seed --no-interaction
+          php artisan optimize:clear
+      - name: Compile routes and templates
+        run: |
+          php artisan route:cache
+          php artisan view:cache
+          php artisan optimize:clear
+      - name: Run functional and unit tests
+        run: php artisan test
+      - name: Start HTTP server and check login page
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/ci-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          curl --fail --silent --show-error --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:8000/login -o /dev/null
